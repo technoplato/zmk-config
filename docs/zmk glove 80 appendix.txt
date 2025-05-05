@@ -1,0 +1,15 @@
+https://docs.moergo.com/glove80-user-guide/appendix-zmk/
+
+Appendix: ZMK¶
+Glove80 is designed to work with the open-source ZMK firmware. The ZMK community (www.zmk.dev) maintains the incredible ZMK firmware.
+
+For more details on the ZMK features, configuration and build procedures, please refer to the ZMK documentation at https://zmk.dev/docs. The ZMK community has a Discord server at https://discord.com/invite/sycytVQ.
+
+The Glove80 fork of ZMK is maintained at https://github.com/moergo-sc/zmk.
+
+Creating a ZMK config repo and building ZMK firmware the “traditional way”¶
+The traditional way of building a ZMK firmware is by creating a Github repository for the ZMK configuration of your keyboard and then using a Github action to build the ZMK firmware. This is documented in https://zmk.dev/docs/user-setup. If you use MoErgo’s Glove80 Layout Editor you don’t need to create a Github repository; please see Glove80 Layout Editor for details.
+
+However if you prefer not to use Glove80 Layout Editor, you can build your Glove80 firmware in the traditional way. We have created a template Glove80 ZMK Configuration, which is at https://github.com/moergo-sc/glove80-zmk-config. Please follow the instructions in README.md.
+
+This approach is particularly useful if you decide to customize your ZMK firmware.

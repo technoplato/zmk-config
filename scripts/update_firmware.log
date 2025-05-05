@@ -1,0 +1,9 @@
+2025-05-05 11:21:52,043 - INFO - --- Starting Firmware Update Script ---
+2025-05-05 11:21:52,043 - INFO - Operating on repository root: /Users/mlustig/dev/tools/glove80/zmk-config
+2025-05-05 11:21:52,043 - INFO - Running command: gh --version (in default CWD)
+2025-05-05 11:21:52,079 - INFO - GitHub CLI found.
+2025-05-05 11:21:52,079 - WARNING - Default EXPECTED_FILES_IN_ARTIFACT detected. Please verify these match the actual firmware file names *inside* the 'firmware' artifact.
+2025-05-05 11:21:52,079 - INFO - Checking for local changes...
+2025-05-05 11:21:52,079 - INFO - Running command: git status --porcelain (in /Users/mlustig/dev/tools/glove80/zmk-config)
+2025-05-05 11:21:52,096 - INFO - Staging changes...
+2025-05-05 11:21:52,096 - INFO - Running command: git add . (in /Users/mlustig/dev/tools/glove80/zmk-config)
