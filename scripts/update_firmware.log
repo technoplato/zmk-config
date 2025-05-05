@@ -7,3 +7,43 @@
 2025-05-05 11:21:52,079 - INFO - Running command: git status --porcelain (in /Users/mlustig/dev/tools/glove80/zmk-config)
 2025-05-05 11:21:52,096 - INFO - Staging changes...
 2025-05-05 11:21:52,096 - INFO - Running command: git add . (in /Users/mlustig/dev/tools/glove80/zmk-config)
+2025-05-05 11:21:52,124 - INFO - Committing changes with message: 'Update ZMK configuration via script'
+2025-05-05 11:21:52,124 - INFO - Running command: git commit -m Update ZMK configuration via script (in /Users/mlustig/dev/tools/glove80/zmk-config)
+2025-05-05 11:21:52,152 - INFO - Pushing changes to remote repository...
+2025-05-05 11:21:52,153 - INFO - Running command: git push (in /Users/mlustig/dev/tools/glove80/zmk-config)
+2025-05-05 11:22:13,797 - INFO - Running command: git rev-parse HEAD (in /Users/mlustig/dev/tools/glove80/zmk-config)
+2025-05-05 11:22:13,811 - INFO - Successfully pushed commit: 85ad167ab6549fcf5878c898e1936019930b7614
+2025-05-05 11:22:13,811 - INFO - Using commit SHA: 85ad167ab6549fcf5878c898e1936019930b7614 to find workflow run.
+2025-05-05 11:22:13,811 - INFO - Fetching workflow runs for commit: 85ad167ab6549fcf5878c898e1936019930b7614...
+2025-05-05 11:22:13,811 - INFO - Attempt 1/10 to find workflow run for commit 85ad167ab6549fcf5878c898e1936019930b7614...
+2025-05-05 11:22:13,811 - INFO - Running command: gh run list --repo technoplato/zmk-config --json id,headSha,status,conclusion,event --limit 10 (in default CWD)
+2025-05-05 11:22:13,853 - ERROR - Command failed: gh run list --repo technoplato/zmk-config --json id,headSha,status,conclusion,event --limit 10
+2025-05-05 11:22:13,853 - ERROR - Error code: 1
+2025-05-05 11:22:13,853 - ERROR - Stderr: Unknown JSON field: "id"
+Available fields:
+  attempt
+  conclusion
+  createdAt
+  databaseId
+  displayTitle
+  event
+  headBranch
+  headSha
+  name
+  number
+  startedAt
+  status
+  updatedAt
+  url
+  workflowDatabaseId
+  workflowName
+2025-05-05 11:22:13,853 - ERROR - Failed to execute 'gh run list'. Check gh CLI authentication and permissions.
+2025-05-05 11:22:50,748 - INFO - --- Starting Firmware Update Script ---
+2025-05-05 11:22:50,748 - INFO - Operating on repository root: /Users/mlustig/dev/tools/glove80/zmk-config
+2025-05-05 11:22:50,748 - INFO - Running command: gh --version (in default CWD)
+2025-05-05 11:22:50,784 - INFO - GitHub CLI found.
+2025-05-05 11:22:50,784 - WARNING - Default EXPECTED_FILES_IN_ARTIFACT detected. Please verify these match the actual firmware file names *inside* the 'firmware' artifact.
+2025-05-05 11:22:50,784 - INFO - Checking for local changes...
+2025-05-05 11:22:50,784 - INFO - Running command: git status --porcelain (in /Users/mlustig/dev/tools/glove80/zmk-config)
+2025-05-05 11:22:50,802 - INFO - Staging changes...
+2025-05-05 11:22:50,802 - INFO - Running command: git add . (in /Users/mlustig/dev/tools/glove80/zmk-config)

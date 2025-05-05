@@ -125,7 +125,7 @@ def get_latest_workflow_run_id(commit_sha):
     command = [
         "gh", "run", "list",
         "--repo", f"{GITHUB_OWNER}/{GITHUB_REPO}",
-        "--json", "id,headSha,status,conclusion,event",
+        "--json", "databaseId,headSha,status,conclusion,event", # Use databaseId instead of id
         "--limit", "10" # Check the 10 most recent runs
     ]
 
@@ -146,9 +146,9 @@ def get_latest_workflow_run_id(commit_sha):
             if relevant_runs:
                 # Runs are listed newest first by 'gh run list'
                 latest_run = relevant_runs[0]
-                run_id = latest_run['id']
-                logger.info(f"Found latest workflow run ID: {run_id} for commit {commit_sha}")
-                return run_id
+                run_database_id = latest_run['databaseId'] # Use databaseId
+                logger.info(f"Found latest workflow run database ID: {run_database_id} for commit {commit_sha}")
+                return run_database_id
             else:
                 logger.info(f"No workflow run found yet for commit {commit_sha}. Waiting {POLL_INTERVAL} seconds...")
 
@@ -168,12 +168,13 @@ def get_latest_workflow_run_id(commit_sha):
     return None
 
 
-def wait_for_workflow_completion(run_id):
+def wait_for_workflow_completion(run_database_id):
     """Polls the workflow run status until it completes."""
-    logger.info(f"Waiting for workflow run {run_id} to complete...")
+    logger.info(f"Waiting for workflow run {run_database_id} to complete...")
     while True:
+        # gh run view accepts the database ID directly
         command = [
-            "gh", "run", "view", str(run_id),
+            "gh", "run", "view", str(run_database_id),
             "--repo", f"{GITHUB_OWNER}/{GITHUB_REPO}",
             "--json", "status,conclusion"
         ]
@@ -183,19 +184,19 @@ def wait_for_workflow_completion(run_id):
             status = run_data.get('status')
             conclusion = run_data.get('conclusion') # Will be None if not completed
 
-            logger.info(f"Workflow run {run_id} status: {status}, Conclusion: {conclusion or 'N/A'}")
+            logger.info(f"Workflow run {run_database_id} status: {status}, Conclusion: {conclusion or 'N/A'}")
 
             if status == "completed":
                 if conclusion == "success":
-                    logger.info(f"Workflow run {run_id} completed successfully.")
+                    logger.info(f"Workflow run {run_database_id} completed successfully.")
                     return True
                 else:
                     # Includes failure, cancelled, skipped, timed_out
-                    logger.error(f"Workflow run {run_id} completed with non-success conclusion: {conclusion}")
+                    logger.error(f"Workflow run {run_database_id} completed with non-success conclusion: {conclusion}")
                     return False
             elif status in ["cancelled", "failure", "skipped", "timed_out"]:
                  # Should be caught by conclusion='success' check, but belt-and-suspenders
-                 logger.error(f"Workflow run {run_id} reported status: {status}. Conclusion: {conclusion}")
+                 logger.error(f"Workflow run {run_database_id} reported status: {status}. Conclusion: {conclusion}")
                  return False
 
             # If status is queued, in_progress, waiting, requested, etc.
@@ -203,12 +204,12 @@ def wait_for_workflow_completion(run_id):
             time.sleep(POLL_INTERVAL)
 
         except json.JSONDecodeError:
-            logger.error(f"Failed to parse JSON output from 'gh run view {run_id}'. Output: {result.stdout}")
+            logger.error(f"Failed to parse JSON output from 'gh run view {run_database_id}'. Output: {result.stdout}")
             logger.info(f"Retrying status check in {POLL_INTERVAL} seconds...")
             time.sleep(POLL_INTERVAL)
         except subprocess.CalledProcessError:
             # Maybe the run ID was wrong or transient API issue
-            logger.error(f"Failed to execute 'gh run view {run_id}'. Check run ID and permissions.")
+            logger.error(f"Failed to execute 'gh run view {run_database_id}'. Check run ID and permissions.")
             logger.info(f"Retrying status check in {POLL_INTERVAL} seconds...")
             time.sleep(POLL_INTERVAL)
         except Exception as e:
@@ -217,9 +218,9 @@ def wait_for_workflow_completion(run_id):
             time.sleep(POLL_INTERVAL)
 
 
-def download_artifacts(run_id):
+def download_artifacts(run_database_id):
     """Downloads the specified artifacts from the completed workflow run."""
-    logger.info(f"Attempting to download artifacts for run {run_id} to {download_dir_path}...")
+    logger.info(f"Attempting to download artifacts for run {run_database_id} to {download_dir_path}...")
 
     # Create download directory if it doesn't exist
     try:
@@ -234,9 +235,10 @@ def download_artifacts(run_id):
         return False
 
     # Download the single artifact (gh cli handles extraction if it's a zip)
+    # gh run download also accepts the database ID
     logger.info(f"Downloading artifact: {ARTIFACT_NAME}...")
     command = [
-        "gh", "run", "download", str(run_id),
+        "gh", "run", "download", str(run_database_id),
         "--repo", f"{GITHUB_OWNER}/{GITHUB_REPO}",
         "--name", ARTIFACT_NAME,
         "--dir", download_dir_path # Download *into* this directory
@@ -276,7 +278,7 @@ def download_artifacts(run_id):
 
     except subprocess.CalledProcessError:
         # This often means the artifact name wasn't found for that run
-        logger.error(f"Failed to download artifact: {ARTIFACT_NAME}. Check artifact name and if it was generated in run {run_id}.")
+        logger.error(f"Failed to download artifact: {ARTIFACT_NAME}. Check artifact name and if it was generated in run {run_database_id}.")
         return False
     except Exception as e:
         logger.error(f"An unexpected error occurred during download of {ARTIFACT_NAME}: {e}")
@@ -315,19 +317,19 @@ if __name__ == "__main__":
              sys.exit(1)
         logger.info(f"Using commit SHA: {commit_sha} to find workflow run.")
 
-        # 2. Get the latest workflow run ID for that commit
-        run_id = get_latest_workflow_run_id(commit_sha)
-        if not run_id:
+        # 2. Get the latest workflow run database ID for that commit
+        run_database_id = get_latest_workflow_run_id(commit_sha)
+        if not run_database_id:
             logger.error("Failed to find a relevant workflow run after multiple attempts. Check GitHub Actions for the commit. Exiting.")
             sys.exit(1)
 
         # 3. Wait for the workflow to complete successfully
-        if not wait_for_workflow_completion(run_id):
+        if not wait_for_workflow_completion(run_database_id):
             logger.error("Workflow did not complete successfully. Check the run logs on GitHub. Exiting.")
             sys.exit(1)
 
         # 4. Download the artifacts
-        if not download_artifacts(run_id):
+        if not download_artifacts(run_database_id):
             logger.error("Failed to download all firmware artifacts. Check the run logs and artifact names. Exiting.")
             sys.exit(1)
 
